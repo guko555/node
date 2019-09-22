@@ -1,10 +1,26 @@
 const Joi = require('@hapi/joi')
+const helmet = require('helmet')
+const morgan = require('morgan')
+const config = require('config')
 const express = require('express')
 const logger = require('./logger')
 const app = express()
 
 app.use(express.json())
-app.use(express.urlencoded({extended: true}))
+app.use(express.urlencoded({ extended: true }))
+app.use(helmet())
+
+if (app.get('env') === 'development') {
+    app.use(morgan('tiny'))
+    console.log('morgan enabled...');
+}
+
+console.log(app.get('env'));
+
+console.log(config.get('name'));
+console.log(config.get('mail.host'));
+console.log(config.get('mail.password'));
+
 app.use(express.static('public'))
 app.use(logger)
 
@@ -108,7 +124,7 @@ app.delete('/api/courses/:id', (req, res) => {
     const index = courses.indexOf(course)
     const str = courses.splice(index, 1)
     console.log(str)
-    
+
     res.status(200)
     res.send(courses)
 })
@@ -116,5 +132,5 @@ app.delete('/api/courses/:id', (req, res) => {
 
 
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 7000
 app.listen(port, () => console.log(`running on port ${port}...`))
